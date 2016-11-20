@@ -191,7 +191,7 @@ Custom (define the name of the unit using the additional field customunit)*/
     public int showtable = 1;
 /*    
 SpeedSize
-VolumeSize	—	Size used for the display value. E.g., if you have a value of 50000 and use Kilo as size the display is 50 kilo #. Default is One (value used as returned). For the Bytes and Speed units this is overridden by the setting in the user interface.	One
+VolumeSize		Size used for the display value. E.g., if you have a value of 50000 and use Kilo as size the display is 50 kilo #. Default is One (value used as returned). For the Bytes and Speed units this is overridden by the setting in the user interface.	One
 Kilo
 Mega
 Giga
@@ -206,16 +206,16 @@ KiloBit
 MegaBit
 GigaBit
 TeraBit
-SpeedTime	—	See above, used when displaying the speed. Default is Second.	Second
+SpeedTime		See above, used when displaying the speed. Default is Second.	Second
 Minute
 Hour
 Day    
     
-decimalMode	—	Init value for the Decimal Places option. If 0 is used in the float mode (i.e., use integer), the default is Automatic; otherwise (i.e., for float) default is All. Note: You can change this initial setting later in the Channel settings of the sensor.	Automatic
+decimalMode		Init value for the Decimal Places option. If 0 is used in the float mode (i.e., use integer), the default is Automatic; otherwise (i.e., for float) default is All. Note: You can change this initial setting later in the Channel settings of the sensor.	Automatic
 All
 Custom
-decimalDigits	—	If you define Custom as decimalMode, specify the number of digits after the delimiter.	Integer
-ValueLookup	—	Define if you want to use a lookup file (e.g., to view integer values as status texts). Please enter the ID of the lookup file you want to use, or omit this element to not use lookups. See PRTG Manual: Define Lookups for more information. Note: This setting will be considered only on the first sensor scan, when the channel is newly created; it is ignored on all further sensor scans (and may be omitted). You can change this initial setting later in the Channel settings of the sensor.	Any string
+decimalDigits		If you define Custom as decimalMode, specify the number of digits after the delimiter.	Integer
+ValueLookup		Define if you want to use a lookup file (e.g., to view integer values as status texts). Please enter the ID of the lookup file you want to use, or omit this element to not use lookups. See PRTG Manual: Define Lookups for more information. Note: This setting will be considered only on the first sensor scan, when the channel is newly created; it is ignored on all further sensor scans (and may be omitted). You can change this initial setting later in the Channel settings of the sensor.	Any string
 */    
     /** Define an upper error limit for the channel. If enabled, the sensor will be set to a "Down" status if this value is overrun and the LimitMode is activated. Note: Please provide the limit value in the unit of the base data type, just as used in the <Value> element of this section. While a sensor shows a "Down" status triggered by a limit, it will still receive data in its channels. The values defined with this element will be considered only on the first sensor scan, when the channel is newly created; they are ignored on all further sensor scans (and may be omitted). You can change this initial setting later in the Channel settings of the sensor.	Integer */
     public Integer	limitMaxError = null;	

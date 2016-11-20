@@ -52,14 +52,14 @@
 			<name>SNMP4J Maven Repository</name>
 			<url>https://oosnmp.net/dist/release</url>
 		</repository>
-		<repository>
+		<!--repository>
 		    <id>codehaus-mule-repo</id>
 		    <name>codehaus-mule-repo</name>
 		    <url>
 		      https://repository-master.mulesoft.org/nexus/content/groups/public/
 		    </url>
 		    <layout>default</layout>
-		</repository>
+		</repository-->
 		<repository>
 		     <id>WASDev</id>
 		     <name>WASDev Repository</name>

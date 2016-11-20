@@ -33,6 +33,7 @@ package com.paessler.prtg.jmx.sensors;
 import com.google.gson.JsonObject;
 import com.paessler.prtg.jmx.Logger;
 import com.paessler.prtg.jmx.channels.Channel;
+import com.paessler.prtg.jmx.definitions.SensorConstants;
 import com.paessler.prtg.jmx.definitions.VMHealthDefinition;
 import com.paessler.prtg.jmx.sensors.jmx.JMXAttribute;
 import com.paessler.prtg.jmx.sensors.jmx.JMXBean;
@@ -65,75 +66,8 @@ public class VMHealthSensor extends JMXSensor {
     public Sensor copy(){
 		return new VMHealthSensor(this);
 	}
-    // --------------------------------------------------------------------------------------------
-/*    @Override
-    public DataResponse getResponses(MBeanServerConnection mbsc) throws Exception{
-        DataResponse retVal = new DataResponse(sensorid, getSensorName());
-        ObjectName memoryBeanName = new ObjectName(ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME);
-        Double tmpD;
-        if (memoryBeanName != null) {
-//        	tmpD = ((Double) mbsc.getAttribute(memoryBeanName, "SystemLoadAverage"))*100.0;
-//        	response.addChannel(new FloatChannel("OS: SystemLoadAverage", Channel.Unit.CPU, tmpD.floatValue()));
-        	tmpD = ((Double) mbsc.getAttribute(memoryBeanName, "SystemCpuLoad"))*100.0 ;
-        	retVal.addChannel(new FloatChannel("OS: SystemCpuLoad", Channel.Unit.CPU, tmpD.floatValue()));
-        	tmpD = ((Double) mbsc.getAttribute(memoryBeanName, "ProcessCpuLoad"))*100.0;
-        	retVal.addChannel(new FloatChannel("OS: ProcessCpuLoad", Channel.Unit.CPU, tmpD.floatValue()));
-        	retVal.addChannel(new LongChannel("OS: FreePhysicalMemorySize", Channel.Unit.COUNT, (Long) mbsc.getAttribute(memoryBeanName, "FreePhysicalMemorySize")));
-        	retVal.addChannel(new LongChannel("OS: AvailableProcessors", Channel.Unit.COUNT, (Integer) mbsc.getAttribute(memoryBeanName, "AvailableProcessors")));
-        }
-        memoryBeanName = new ObjectName(ManagementFactory.MEMORY_MXBEAN_NAME);
-        CompositeData heapMemoryUsage = (CompositeData) mbsc.getAttribute(memoryBeanName, "HeapMemoryUsage");
-        if (heapMemoryUsage != null) {
-            long hmu = (Long) heapMemoryUsage.get("committed");
-            long initHmu = (Long) heapMemoryUsage.get("init");
-            long maxHmu = (Long) heapMemoryUsage.get("max");
-            long usedHmu = (Long) heapMemoryUsage.get("used");
 
-            LongChannel hmuChannel = new LongChannel("JVM: Committed heap memory", Channel.Unit.MEMORY, hmu);
-            LongChannel initChannel = new LongChannel("JVM: Initialized heap memory", Channel.Unit.MEMORY, initHmu);
-            LongChannel maxChannel = new LongChannel("JVM: Max heap memory", Channel.Unit.MEMORY, maxHmu);
-            LongChannel usedChannel = new LongChannel("JVM: Used heap memory", Channel.Unit.MEMORY, usedHmu);
 
-            retVal.addChannel(hmuChannel);
-            retVal.addChannel(initChannel);
-            retVal.addChannel(maxChannel);
-            retVal.addChannel(usedChannel);
-        }
-
-       
-        memoryBeanName = new ObjectName(ManagementFactory.THREAD_MXBEAN_NAME);
-        {
-//        	final long[] deadlocks = mbsc.findMonitorDeadlockedThreads();
-            int liveThreadCount = (Integer) mbsc.getAttribute(memoryBeanName, "ThreadCount");
-            int peakThreadCount = (Integer) mbsc.getAttribute(memoryBeanName, "PeakThreadCount");
-            int daemonThreadCount = (Integer) mbsc.getAttribute(memoryBeanName, "DaemonThreadCount");
-            long totalThreadCount = (Long) mbsc.getAttribute(memoryBeanName, "TotalStartedThreadCount");
-            LongChannel liveThreadChannel = new LongChannel("JVM: Live threads", Channel.Unit.COUNT, liveThreadCount);
-            LongChannel peakThreadChannel = new LongChannel("JVM: Peak threads", Channel.Unit.COUNT, peakThreadCount);
-            LongChannel daemonThreadChannel = new LongChannel("JVM: Daemon threads", Channel.Unit.COUNT, daemonThreadCount);
-            LongChannel totalThreadChannel = new LongChannel("JVM: Total threads started", Channel.Unit.COUNT, totalThreadCount);
-            retVal.addChannel(liveThreadChannel);
-            retVal.addChannel(peakThreadChannel);
-            retVal.addChannel(daemonThreadChannel);
-            retVal.addChannel(totalThreadChannel);
-        }
-        memoryBeanName = new ObjectName(ManagementFactory.CLASS_LOADING_MXBEAN_NAME);
-        {
-            long totalLoadedClasses = (Long) mbsc.getAttribute(memoryBeanName, "TotalLoadedClassCount");
-            int currentLoadedClasses = (Integer) mbsc.getAttribute(memoryBeanName, "LoadedClassCount");
-            long unloadedClasses = (Long) mbsc.getAttribute(memoryBeanName, "UnloadedClassCount");
-            LongChannel totalLoadedClassChannel = new LongChannel("JVM: Total classes loaded", Channel.Unit.COUNT, totalLoadedClasses);
-            LongChannel currentLoadedClassChannel = new LongChannel("JVM: Current classes loaded", Channel.Unit.COUNT, currentLoadedClasses);
-            LongChannel unloadedClassChannel = new LongChannel("JVM: Total classes unloaded", Channel.Unit.COUNT, unloadedClasses);
-            retVal.addChannel(totalLoadedClassChannel);
-            retVal.addChannel(currentLoadedClassChannel);
-            retVal.addChannel(unloadedClassChannel);
-        }
-    	return retVal;
-    }
-*/    
-    // --------------------------------------------------------------------------------------------
-    @SuppressWarnings("unused")
 	protected void addDefs(){
     	
     	
@@ -218,14 +152,6 @@ MBean Found, Class Name:sun.management.MemoryImpl
         	tmppair.setDescription("JVM: Non-heap memory[max]");
         	attrlist.addAttributePair(tmppair);
         	// --------------
-/*        	tmppair = new AttributePair("max",Channel.Unit.MEMORY);
-        	tmppair.setDescription("JVM: Max heap memory");
-        	attrlist.addAttributePair(tmppair);
-        	// --------------
-        	tmppair = new AttributePair("used",Channel.Unit.MEMORY);
-        	tmppair.setDescription("JVM: Used heap memory");
-        	attrlist.addAttributePair(tmppair);
-*/        	
         } else{
         	Logger.log("**** Error: Failed to get JMXBean: "+ManagementFactory.MEMORY_MXBEAN_NAME+"*****\n\n\n");
         }
@@ -300,6 +226,12 @@ MBean Found, Class Name:sun.management.MemoryImpl
     @Override
     public void loadFromJson(JsonObject json)  throws Exception{
     	super.loadFromJson(json);
+		if (json.has(SensorConstants.RMIUSERNAME)) {
+			setUsername(json.get(SensorConstants.RMIUSERNAME).getAsString());
+		}
+		if (json.has(SensorConstants.RMIPASSWORD)) {
+			setPassword(json.get(SensorConstants.RMIPASSWORD).getAsString());
+		}
     	addDefs();
 //        setmBean(ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME);
     }
