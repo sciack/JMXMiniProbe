@@ -8,8 +8,11 @@
   <name>jmx</name>
   <url>https://github.com/PaesslerAG/JMXMiniProbe</url>
 
- <properties> 
-<!--  *******************  Package Versions  ******************* -->
+ <properties>
+     <maven.compiler.source>1.7</maven.compiler.source>
+     <maven.compiler.target>1.7</maven.compiler.target>
+
+     <!--  *******************  Package Versions  ******************* -->
       <JMXMiniProbe.byteCodeVersion>1.7</JMXMiniProbe.byteCodeVersion>		
       <JMXMiniProbe.srcCodeVersion>1.7</JMXMiniProbe.srcCodeVersion>		
 <!--  *******************  Package Versions  ******************* -->

@@ -154,4 +154,17 @@ public class Entry  implements Comparable<Entry> {
 	  public void sort(){
 	        Collections.sort(getAttributes());
 	  }
+
+	@Override
+	public String toString() {
+		return "Entry{" +
+				"object='" + object + '\'' +
+				", description='" + description + '\'' +
+				", displayValue='" + displayValue + '\'' +
+				", shortDescription='" + shortDescription + '\'' +
+				", comment='" + comment + '\'' +
+				", propMap=" + propMap +
+				", attributes=" + attributes +
+				'}';
+	}
 }

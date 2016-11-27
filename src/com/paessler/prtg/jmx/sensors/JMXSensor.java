@@ -32,7 +32,6 @@ package com.paessler.prtg.jmx.sensors;
 
 import com.google.gson.JsonObject;
 import com.paessler.prtg.jmx.Logger;
-import com.paessler.prtg.jmx.ProbeContext;
 import com.paessler.prtg.jmx.channels.Channel;
 import com.paessler.prtg.jmx.definitions.SensorConstants;
 import com.paessler.prtg.jmx.responses.DataError;
@@ -44,85 +43,97 @@ import com.paessler.prtg.jmx.sensors.jmx.JMXUtils;
 import com.paessler.prtg.jmx.sensors.jmx.JMXUtils.MBeanConnectionHolder;
 import com.paessler.prtg.jmx.sensors.profile.Entry;
 import com.paessler.prtg.jmx.sensors.profile.Profile;
-import com.paessler.prtg.util.SystemUtility;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class JMXSensor extends Sensor {
-	
+
     // --------------------------------------------------------------------------------------------
-	public JMXSensor(){
-		super();
-	}
-	public JMXSensor(JMXSensor toclone){
-		super(toclone);
-		rmiString = toclone.rmiString;
-		beanList.addAll(toclone.beanList);
-	}
-	public Sensor copy(){
-		return new JMXSensor(this);
-	}
-	//----------------------------------------------------------------------
+    public JMXSensor() {
+        super();
+    }
+
+    public JMXSensor(JMXSensor toclone) {
+        super(toclone);
+        rmiString = toclone.rmiString;
+        beanList.addAll(toclone.beanList);
+    }
+
+    public Sensor copy() {
+        return new JMXSensor(this);
+    }
+
+    //----------------------------------------------------------------------
     protected String rmiString;
     protected List<JMXBean> beanList = new ArrayList<JMXBean>();
-    
-    public List<JMXBean> getBeanList() {return beanList;}
-	public void addBeanList(JMXBean attrs) {this.beanList.add(attrs);}
-//	public void setmBeanList(List<MBeanAttributes> mBeanList) {this.mBeanList = mBeanList;}
-	// --------------------------------------------------------------------------------------------
-    public String getRmiString() {	return rmiString;}
-	public void setRmiString(String rmiString) {this.rmiString = rmiString;	}
 
-	
+    public List<JMXBean> getBeanList() {
+        return beanList;
+    }
+
+    public void addBeanList(JMXBean attrs) {
+        this.beanList.add(attrs);
+    }
+
+    //	public void setmBeanList(List<MBeanAttributes> mBeanList) {this.mBeanList = mBeanList;}
     // --------------------------------------------------------------------------------------------
-    public DataResponse addResponses(MBeanServerConnection mbsc, DataResponse target, ObjectName bean, List<JMXAttribute> attributeList) throws Exception{
+    public String getRmiString() {
+        return rmiString;
+    }
+
+    public void setRmiString(String rmiString) {
+        this.rmiString = rmiString;
+    }
+
+
+    // --------------------------------------------------------------------------------------------
+    public DataResponse addResponses(MBeanServerConnection mbsc, DataResponse target, ObjectName bean, List<JMXAttribute> attributeList) throws Exception {
         DataResponse retVal = target;
         Channel channel;
         for (JMXAttribute curr : attributeList) {
-			if(curr.isEnabled()){
-            String attributeName = curr.getObject();
-            Object obj = null;  
-            try {
-				obj = mbsc.getAttribute(bean, attributeName);
-	            if (obj != null) {
-	            	channel = curr.getChannel(obj);
-	            	if(channel != null){
-	            		retVal.addChannel(channel);
-	            	}
-	            } else {
-	            	Logger.log("********* Error: nvalid attribute["+attributeName+"] for MBean["+bean.toString()+"] Obj:"+obj+" ************************\n\n\n");
-	            }
-	       
-			} catch (Exception e) {
-                DataError error = new DataError(sensorid, bean.toString());
-                error.setError("Exception");
-                error.setMessage("Invalid attribute["+attributeName+"] for MBean["+bean.toString()+"] value type (Service URL: " + rmiString + ")");
-                retVal = error;
-			}
-		  } // if(curr.isEnabled())
+            if (curr.isEnabled()) {
+                String attributeName = curr.getObject();
+                Object obj;
+                try {
+                    obj = mbsc.getAttribute(bean, attributeName);
+                    if (obj != null) {
+                        channel = curr.getChannel(obj);
+                        if (channel != null) {
+                            retVal.addChannel(channel);
+                        }
+                    } else {
+                        Logger.log("********* Error: nvalid attribute[" + attributeName + "] for MBean[" + bean.toString() + "] Obj:" + obj + " ************************\n\n\n");
+                    }
+
+                } catch (Exception e) {
+                    DataError error = new DataError(sensorid, bean.toString());
+                    error.setError("Exception");
+                    error.setMessage("Invalid attribute[" + attributeName + "] for MBean[" + bean.toString() + "] value type (Service URL: " + rmiString + ")");
+                    retVal = error;
+                }
+            } // if(curr.isEnabled())
         } // for
-    	return retVal;
+        return retVal;
     }
+
     // --------------------------------------------------------------------------------------------
-    public DataResponse addResponses(MBeanServerConnection mbsc, DataResponse target, JMXBean beans) throws Exception{
-    	return addResponses(mbsc, target, beans.objectName, beans.attributeList);
+    public DataResponse addResponses(MBeanServerConnection mbsc, DataResponse target, JMXBean beans) throws Exception {
+        return addResponses(mbsc, target, beans.objectName, beans.attributeList);
     }
 
     // --------------------------------------------------------------------------------------------
     public DataResponse getResponses(MBeanServerConnection mbsc) throws Exception {
         DataResponse retVal = new DataResponse(sensorid, getSensorName());
-        
-        for(JMXBean curr: beanList){
-        	addResponses(mbsc, retVal, curr);
+
+        for (JMXBean curr : beanList) {
+            addResponses(mbsc, retVal, curr);
         }
         String msg = getSensorMessage();
-        if(msg != null){
-        	retVal.addMessage(msg);
+        if (msg != null) {
+            retVal.addMessage(msg);
         }
         return retVal;
     }
@@ -131,30 +142,28 @@ public class JMXSensor extends Sensor {
     @Override
     public DataResponse go() {
         DataResponse response = null;
-        MBeanConnectionHolder mbsch = null; 
+        MBeanConnectionHolder mbsch = null;
         try {
 //            MBeanServerConnection mbsc = getMBeanServer();
-        	mbsch = JMXUtils.getJMXConnection(rmiString, username, password);
-        	MBeanServerConnection mbsc = mbsch.getMbc();
-            if(mbsc == null){
+            mbsch = JMXUtils.getJMXConnection(rmiString, username, password);
+            MBeanServerConnection mbsc = mbsch.getMbc();
+            if (mbsc == null) {
                 DataError error = new DataError(sensorid, getSensorName());
                 error.setCode(-1);
                 error.setError("Connection Error");
                 error.setMessage("Failed to connect JMX Server (Service URL: " + rmiString + ")");
-             	return error;
+                return error;
             }
             response = getResponses(mbsc);
-            
+
         } catch (Exception e) {
-        	String errMessage = e.getMessage() + " (Service URL: " + rmiString + ")";
-        	if(e instanceof java.io.IOException)
-        	{
-        		errMessage = "Connection/SSL Problem; " + errMessage;
-        		Logger.log(errMessage);
-        	} else
-        	{
-        		Logger.log(errMessage, e);
-        	}
+            String errMessage = e.getMessage() + " (Service URL: " + rmiString + ")";
+            if (e instanceof java.io.IOException) {
+                errMessage = "Connection/SSL Problem; " + errMessage;
+                Logger.log(errMessage);
+            } else {
+                Logger.log(errMessage, e);
+            }
             DataError error = new DataError(sensorid, getSensorName());
             error.setCode(-1);
             error.setError("Exception");
@@ -163,7 +172,7 @@ public class JMXSensor extends Sensor {
         } finally {
             if (mbsch != null) {
                 try {
-                	mbsch.close();
+                    mbsch.close();
                 } catch (Exception e) {
                     // Ignore
                 }
@@ -172,39 +181,40 @@ public class JMXSensor extends Sensor {
 
         return response;
     }
+
     // --------------------------------------------------------------------------------------------
     @Override
-    public void loadFromJson(JsonObject json)  throws Exception{
-    	rmiString = JMXUtils.RMI_STRING_LOCAL;
-    	super.loadFromJson(json);
-	    if (json.has(SensorConstants.RMISTRING)) {
-	        this.rmiString = json.get(SensorConstants.RMISTRING).getAsString();
-	    }
+    public void loadFromJson(JsonObject json) throws Exception {
+        rmiString = JMXUtils.RMI_STRING_LOCAL;
+        super.loadFromJson(json);
+        if (json.has(SensorConstants.RMISTRING)) {
+            this.rmiString = json.get(SensorConstants.RMISTRING).getAsString();
+        }
     }
-    
-    
-	// ----------------------------------------------------------------------
+
+
+    // ----------------------------------------------------------------------
     @Override
     public void loadFrom(Profile profile) {
-    	super.loadFrom(profile);
-    	setSensorName(profile.getName());
-    	setKind(profile.getKind());
-    	String tmptag = profile.getTag();
+        super.loadFrom(profile);
+        setSensorName(profile.getName());
+        setKind(profile.getKind());
+        String tmptag = profile.getTag();
 //    	String tmp2 = profile.getTags();
 //    	if()
-    	JMXSensorDefinition def =new JMXSensorDefinition(profile.getKind(), profile.getName(), profile.getDescription(), 
-    			tmptag, profile.getHelp());
-    	setDefinition(def);
-    	Object prop = profile.getProperty(SensorConstants.RMISTRING);
-    	if(prop != null){
-    		getDefinition().setFieldDefaultValue(SensorConstants.RMISTRING, prop.toString());
-    	}
-    	JMXBean bean;
-    	for(Entry curr : profile.getEntries()){
-    		bean = new JMXBean(curr);
-    		if(bean != null){
-    			addBeanList(bean);
-    		}
-    	}
+        JMXSensorDefinition def = new JMXSensorDefinition(profile.getKind(), profile.getName(), profile.getDescription(),
+                tmptag, profile.getHelp());
+        setDefinition(def);
+        Object prop = profile.getProperty(SensorConstants.RMISTRING);
+        if (prop != null) {
+            getDefinition().setFieldDefaultValue(SensorConstants.RMISTRING, prop.toString());
+        }
+        JMXBean bean;
+        for (Entry curr : profile.getEntries()) {
+            bean = new JMXBean(curr);
+            if (bean != null) {
+                addBeanList(bean);
+            }
+        }
     }
 }

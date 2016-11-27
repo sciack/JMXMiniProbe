@@ -93,7 +93,7 @@ public class Profiles {
 		// -----------------------------------------------------------------------------------
 	  public void sort(){
 	        sort(new Comparator<Profile>() {
-	            @Override
+
 	            public int compare(Profile p1, Profile p2) {
 	            	int retVal = -1;
 	            	String n1 = p1.getName();

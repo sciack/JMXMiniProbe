@@ -50,6 +50,22 @@ public class JMXAttribute {
     public double mpy = DEFAULT_NOOPVAL, div = DEFAULT_NOOPVAL;
     public boolean enabled = true;
 
+	public JMXAttribute(Attribute<?> attr) {
+		setObject(attr.getObject().toString());
+		setUnit(attr.getUnitEnum());
+		setDescription(attr.getDescription());
+		setDiv(attr.getDiv());
+		setMpy(attr.getMpy());
+	}
+
+	public JMXAttribute(String name, Unit unit) {
+		setObject(name);
+		setUnit(unit);
+	}
+	public JMXAttribute(String name, String unit) {
+		this(name, Channel.toUnit(unit));
+	}
+
     public List<String> parseObjectName(String name){
     	List<String> retVal = new Vector<String>();
     	if(name != null){
@@ -88,19 +104,7 @@ public class JMXAttribute {
     	return retVal.toString();
     }
     // ---------------------------------------------
-    public JMXAttribute(Attribute<?> attr) {
-        setObject(attr.getObject().toString());
-        setUnit(attr.getUnitEnum());
-        setDescription(attr.getDescription());
-    }
-    
-    public JMXAttribute(String name, Unit unit) {
-        setObject(name);
-        setUnit(unit);
-    }
-    public JMXAttribute(String name, String unit) {
-    	this(name, Channel.toUnit(unit));
-    }
+
 	// --------------------------------
     public int getObjectCount() {return object.size();}
     public boolean isObjectIndexValid(int index) {return object != null && (index < getObjectCount());}
@@ -126,6 +130,7 @@ public class JMXAttribute {
 			this.object.set(index, name);
 		}
 	}
+
 	// --------------------------------
 	public String getObject() {	return getObject(0);}
 	public void setObject(String name) {this.object = parseObjectName(name);	}

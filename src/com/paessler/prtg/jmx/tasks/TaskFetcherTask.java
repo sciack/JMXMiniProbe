@@ -257,7 +257,8 @@ public class TaskFetcherTask extends TimerTask {
 		        }
 		        retVal = getSensors(json);
 	        }
-        }                	prtgMBean.addQueryCount(1);
+        }
+        prtgMBean.addQueryCount(1);
 
         return retVal;
     }

@@ -197,17 +197,19 @@ public abstract class Attribute<T extends Comparable<T>> implements Comparable<A
 	
 	// --------------------------------------------------
 	public long adjustValue(long val){
-		long retVal = val;
+        long retVal = val;
 		if(mpy != DEFAULT_NOOPVAL){
 			retVal *= mpy;
 		}
 		if(div != DEFAULT_NOOPVAL && div != 0.0d){
+
 			retVal /= div;
 		}
 		return retVal;
 	}
 	// --------------------------------------------------
 	public float adjustValue(double val){
+        System.out.println("["+displayValue+"]Value is "+val+ " divisor is: "+div);
 		double retVal = val;
 		if(mpy != DEFAULT_NOOPVAL){
 			retVal *= mpy;
@@ -353,5 +355,33 @@ public abstract class Attribute<T extends Comparable<T>> implements Comparable<A
 	// -------------------------------------------
 	@Override
 	public abstract int compareTo(Attribute<T> other);
+
+    @Override
+    public String toString() {
+        return "Attribute{" +
+                "object=" + object +
+                ", description='" + description + '\'' +
+                ", shortDescription='" + shortDescription + '\'' +
+                ", displayValue='" + displayValue + '\'' +
+                ", unit='" + unit + '\'' +
+                ", mode='" + mode + '\'' +
+                ", customUnit='" + customUnit + '\'' +
+                ", eMode=" + eMode +
+                ", eUnit=" + eUnit +
+                ", comment='" + comment + '\'' +
+                ", mpy=" + mpy +
+                ", div=" + div +
+                ", enabled=" + enabled +
+                ", propMap=" + propMap +
+                ", limitMaxError=" + limitMaxError +
+                ", limitMaxWarning=" + limitMaxWarning +
+                ", limitMinWarning=" + limitMinWarning +
+                ", limitMinError=" + limitMinError +
+                ", limitErrorMsg='" + limitErrorMsg + '\'' +
+                ", limitWarningMsg='" + limitWarningMsg + '\'' +
+                ", limitMode=" + limitMode +
+                ", haveSetChannels=" + haveSetChannels +
+                '}';
+    }
 }
 

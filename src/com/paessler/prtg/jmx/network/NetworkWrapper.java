@@ -35,17 +35,21 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.paessler.prtg.jmx.Logger;
+import org.apache.http.impl.client.HttpClients;
 
 import javax.net.ssl.*;
 
@@ -54,49 +58,16 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 public class NetworkWrapper {
-    public static HttpClient wrapClient(HttpClient base) {
-        try {
-            SSLContext ctx = SSLContext.getInstance("TLSv1.2");
-            X509TrustManager tm = new X509TrustManager() {
-                public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-                }
-                public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-                }
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-            };
-            X509HostnameVerifier verifier = new X509HostnameVerifier() {
-                public void verify(String string, SSLSocket ssls) throws IOException {
-                }
 
-                public void verify(String string, X509Certificate xc) throws SSLException {
-                }
 
-                public void verify(String string, String[] strings, String[] strings1) throws SSLException {
-                }
-
-                public boolean verify(String string, SSLSession ssls) {
-                    return true;
-                }
-            };
-            ctx.init(null, new TrustManager[]{tm}, null);
-            SSLSocketFactory ssf = new SSLSocketFactory(ctx);
-            ssf.setHostnameVerifier(verifier);
-            ClientConnectionManager ccm = base.getConnectionManager();
-            SchemeRegistry sr = ccm.getSchemeRegistry();
-            sr.register(new Scheme("https", ssf, 443));
-            return new DefaultHttpClient(ccm, base.getParams());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
-
-    public static DefaultHttpClient getClient( int timeout) {
-        DefaultHttpClient client = new DefaultHttpClient();
-        wrapClient(client);
-        return client;
+    public static CloseableHttpClient getClient(int timeout) {
+        RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout).build();
+        CloseableHttpClient httpClient = HttpClients
+                .custom()
+                .setDefaultRequestConfig(config)
+                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .build();
+        return httpClient;
     }
 
     public static void post(String url, String Data) throws IOException {
@@ -104,28 +75,29 @@ public class NetworkWrapper {
     }
 
     public static void post(String url, String data, int timeout) throws IOException {
-        DefaultHttpClient httpClient = getClient(timeout);
+        try(CloseableHttpClient httpClient = getClient(timeout)) {
 //	    if(context.getDebugLevel() > 0){
 //	    	Logger.log("Uploading " + data + " to " + url);
 //	    }
-        HttpPost post = new HttpPost(url);
-        post.setEntity(new StringEntity(data));
-        post.setHeader("Accept", "application/json");
-        post.setHeader("Content-type", "application/json");
-        HttpResponse response = httpClient.execute(post);
-        if (response == null)
-            throw new InterruptedIOException("The network is not working properly");
+            HttpPost post = new HttpPost(url);
+            post.setEntity(new StringEntity(data));
+            post.setHeader("Accept", "application/json");
+            post.setHeader("Content-type", "application/json");
+            HttpResponse response = httpClient.execute(post);
+            if (response == null)
+                throw new InterruptedIOException("The network is not working properly");
 
-        StatusLine statusLine = response.getStatusLine();
-        int statusCode = statusLine.getStatusCode();
-        if (statusCode >= 200 && statusCode <= 299) {
-            // Great!
-        } else {
-            String reason = responseToString(response);
-            if (reason == null || reason.length() == 0)
-                throw new HttpResponseException(statusCode, statusLine.getReasonPhrase());
-            else
-                throw new HttpResponseException(statusCode, reason);
+            StatusLine statusLine = response.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
+            if (statusCode >= 200 && statusCode <= 299) {
+                // Great!
+            } else {
+                String reason = responseToString(response);
+                if (reason == null || reason.length() == 0)
+                    throw new HttpResponseException(statusCode, statusLine.getReasonPhrase());
+                else
+                    throw new HttpResponseException(statusCode, reason);
+            }
         }
     }
 
@@ -135,23 +107,24 @@ public class NetworkWrapper {
 
     public static String fetch(String url, int timeout) throws IOException {
         System.out.println("Fetching " + url);
-        DefaultHttpClient httpClient = getClient(timeout);
-        HttpGet get = new HttpGet(url);
-        HttpResponse response = null;
-        response = httpClient.execute(get);
-        if (response == null)
-            throw new InterruptedIOException("The network is not working properly");
+        try(CloseableHttpClient httpClient = getClient(timeout)) {
+            HttpGet get = new HttpGet(url);
+            HttpResponse response = null;
+            response = httpClient.execute(get);
+            if (response == null)
+                throw new InterruptedIOException("The network is not working properly");
 
-        StatusLine statusLine = response.getStatusLine();
-        int statusCode = statusLine.getStatusCode();
-        if (statusCode >= 200 && statusCode <= 299) {
-            return responseToString(response);
-        } else {
-            String reason = responseToString(response);
-            if (reason == null || reason.length() == 0)
-                throw new HttpResponseException(statusCode, statusLine.getReasonPhrase());
-            else
-                throw new HttpResponseException(statusCode, reason);
+            StatusLine statusLine = response.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
+            if (statusCode >= 200 && statusCode <= 299) {
+                return responseToString(response);
+            } else {
+                String reason = responseToString(response);
+                if (reason == null || reason.length() == 0)
+                    throw new HttpResponseException(statusCode, statusLine.getReasonPhrase());
+                else
+                    throw new HttpResponseException(statusCode, reason);
+            }
         }
     }
 
