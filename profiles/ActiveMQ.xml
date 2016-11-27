@@ -1,0 +1,99 @@
+<!-- ###########################################################
+Unit Values[BytesBandwidth, BytesMemory, BytesDisk, BytesFile, TimeResponse, TimeSeconds, TimeHours, Temperature, Percent, Count, CPU (*), Custom]
+***************************************************************
+Please note, the apache.commons.digester3 is case sensitive.
+All XML TAGS should be in lower case.
+Profile Tags * MUST * be unique.
+***************************************************************
+The following are all the JMX MBeans found
+########################################################### -->
+<profiles>
+	<profile>
+		<!-- Profile Name -->
+		<name>ActiveMQ Stats</name>
+		<!-- Tags -->
+		<tag>jmxsensor,mjjmxsensor</tag> 
+		 <!-- Unique kind/identifier for this sensor -->
+		<kind>mjjmxamqsensor</kind>
+		 <!-- Sensor Description, what appears in the Sensor selection dialog-->
+		<description>Check on important information for ActiveMQ health</description>
+		 <!-- Base Java Class for this Sensor -->
+		<baseclass>com.paessler.prtg.jmx.sensors.JMXSensor</baseclass>
+		 <!-- Base Java Class for this Sensor -->
+		<help>ActiveMQ metrics</help>
+		<entries>
+			<!-- Entry base for group of objects, for JMX, used for bean name -->
+			<entry>
+				<!-- Object name, for JMX MBean name -->
+				<object>org.apache.activemq:type=Broker,brokerName=localhost</object>
+				<!-- Name to Display, Not used but enter for completeness -->
+				<displayvalue>Broker</displayvalue>
+				<description>ActiveMQ for Broker [localhost]</description>
+				<shortdescription>Broker information </shortdescription>
+				<attributes>
+					<attribute>
+						<object>CurrentConnectionsCount</object>
+						<displayvalue>Connection count</displayvalue>
+						<description>The number of open connection to ActiveMQ</description>
+						<shortdescription>Current Connection</shortdescription>
+						<comment>Comment</comment>
+						<unit>COUNT</unit>
+						<enabled>true</enabled>
+						<limitmaxerror>950</limitmaxerror>
+						<limitmaxwarning>700</limitmaxwarning>
+						<limitminwarning>0</limitminwarning>
+						<limitminerror>0</limitminerror>
+						<limiterrormsg>Too many connection to ActiveMQ open</limiterrormsg>
+						<limitwarningmsg>The number of connection is reaching the top</limitwarningmsg>
+						<limitmode>1</limitmode>
+					</attribute>
+					<attribute>
+						<object>AverageMessageSize</object>
+						<displayvalue>Average Message Size</displayvalue>
+						<description>Average size of a message</description>
+						<shortdescription>Average size of a message</shortdescription>
+						<comment>Comment</comment>
+						<customunit>BYTES</customunit>
+						<enabled>true</enabled>
+					</attribute>
+					<attribute>
+						<object>TotalMessageCount</object>
+						<displayvalue>Total message</displayvalue>
+						<description>Total message count</description>
+						<shortdescription>Total message count</shortdescription>
+						<comment>Comment</comment>
+						<unit>COUNT</unit>
+						<enabled>true</enabled>
+						
+					</attribute>
+					<attribute>
+						<object>UptimeMillis</object>
+						<displayvalue>Uptime (ms)</displayvalue>
+						<description>Uptime of the broker in seconds.</description>
+						<shortdescription>Uptime of the broker in seconds.</shortdescription>
+						<comment>Comment</comment>
+						<unit>TIME_SECONDS</unit>
+						<enabled>true</enabled>
+						<div>1000.0</div>
+					</attribute>
+					<attribute>
+						<object>StorePercentUsage</object>
+						<displayvalue>Percentage of storage used</displayvalue>
+						<description>Percentage of storage used</description>
+						<shortdescription>Percentage of storage used</shortdescription>
+						<comment>Comment</comment>
+						<unit>PERCENT</unit>
+						<enabled>true</enabled>
+						<limitmaxerror>95</limitmaxerror>
+						<limitmaxwarning>70</limitmaxwarning>
+						<limitminwarning>0</limitminwarning>
+						<limitminerror>0</limitminerror>
+						<limiterrormsg>Storage is full</limiterrormsg>
+						<limitwarningmsg>Storage space free is critical</limitwarningmsg>
+						<limitmode>1</limitmode>
+					</attribute>
+				</attributes>
+			</entry>
+		</entries>
+	</profile>
+</profiles>
